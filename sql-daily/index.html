@@ -65,26 +65,15 @@ h1{font-size:2rem;background:linear-gradient(135deg,#e94560,#ff6b8a);-webkit-bac
 <div class="tip">每天随机抽2题，数据保存在浏览器中</div>
 
 <script>
-var questions = [
-  {title:"查找所有actor_id为10或20的行的first_name和last_name",diff:"easy",tag:"基础查询",link:"https://www.nowcoder.com/practice/f2ea9ccf4fb340eeba5c4010418778e7"},
-  {title:"使用子查询找出属于Action分类的所有电影title,description",diff:"medium",tag:"子查询",link:"https://www.nowcoder.com/practice/2f2e556d335d469f96b91b212c4c203e"},
-  {title:"每个顾客最近一次下单的订单信息",diff:"medium",tag:"窗口函数",link:"https://www.nowcoder.com/practice/4762ea22b0eb42ceb4f0a972c56d24c4"},
-  {title:"SQL语句分类:检索数据应该使用什么语句",diff:"easy",tag:"基础语法",link:"https://www.nowcoder.com/practice/6e35c3373e6946d0b1ad3a5e674e8e76"},
-  {title:"计算每个用户平均订单金额并筛选大于100的用户",diff:"medium",tag:"聚合函数",link:""},
-  {title:"查找连续登录7天及以上的用户",diff:"hard",tag:"连续问题",link:""},
-  {title:"删除重复记录只保留ID最小的那条",diff:"medium",tag:"去重",link:""},
-  {title:"将行数据转为列数据(行转列)",diff:"hard",tag:"CASE WHEN",link:""},
-  {title:"计算各部门工资排名前3的员工",diff:"hard",tag:"窗口函数",link:""},
-  {title:"查找没有订单的客户",diff:"easy",tag:"LEFT JOIN",link:""}
-];
+var questions = [];
 
 var reviewedSet = new Set();
 
 function loadData() {
-  var s = localStorage.getItem("sq");
-  if (s) {
-    try { questions = JSON.parse(s); } catch(e) {}
-  }
+  localStorage.removeItem("sq");
+  localStorage.removeItem("sqr");
+  questions = [];
+  reviewedSet = new Set();
 }
 
 function saveData() {
