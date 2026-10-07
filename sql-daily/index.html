@@ -49,6 +49,7 @@ h1{font-size:2rem;background:linear-gradient(135deg,#e94560,#ff6b8a);-webkit-bac
 <button class="btn btn-red" onclick="reshuffle()">换一换</button>
 <button class="btn" onclick="markDone()">标记已做</button>
 <button class="btn" onclick="toggleAdd()">添加题目</button>
+<button class="btn" onclick="clearAll()">清空题库</button>
 </div>
 <div id="addForm">
 <h3>添加新题目</h3>
@@ -173,6 +174,17 @@ function reshuffle() {
     el.className = "card";
     el.innerHTML = '<div class="num">今日第' + (i+1) + '题</div><h3>' + q.title + '</h3><div class="meta"><span class="tag">' + (q.tag||"") + '</span><span class="tag ' + diffClass(q.diff) + '">' + diffText(q.diff) + '</span></div>';
     box.appendChild(el);
+  }
+}
+
+function clearAll() {
+  if(confirm("确定清空所有题目吗？此操作不可恢复！")) {
+    questions = [];
+    reviewedSet = new Set();
+    localStorage.removeItem("sq");
+    localStorage.removeItem("sqr");
+    render();
+    alert("题库已清空");
   }
 }
 
