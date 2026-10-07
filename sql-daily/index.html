@@ -70,8 +70,11 @@ var questions = [];
 var reviewedSet = new Set();
 
 function loadData() {
-  localStorage.removeItem("sq");
-  localStorage.removeItem("sqr");
+  var ver = localStorage.getItem("sq_ver");
+  if (ver !== "v2") {
+    localStorage.clear();
+    localStorage.setItem("sq_ver", "v2");
+  }
   questions = [];
   reviewedSet = new Set();
 }
