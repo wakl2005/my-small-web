@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文学常识每日一练</title>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --card: #1a1a2e;
+    --card-hover: #222240;
+    --accent: #e94560;
+    --accent2: #0f3460;
+    --gold: #f5c518;
+    --text: #e8e8e8;
+    --text-dim: #9a9ab0;
+    --correct: #2ecc71;
+    --wrong: #e74c3c;
+    --border: #2a2a4a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+    position: relative;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+  }
+  .header .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .header .date-badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 4px 16px;
+    background: var(--accent2);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--gold);
+  }
+
+  /* Progress */
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 10px;
+    height: 8px;
+    margin: 16px 0 24px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 10px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* Stats Row */
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* Question Card */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--accent);
+    border-radius: 4px 0 0 4px;
+    transition: background 0.3s;
+  }
+  .question-card.correct::before { background: var(--correct); }
+  .question-card.wrong::before { background: var(--wrong); }
+  .question-card.correct { border-color: rgba(46,204,113,0.3); }
+  .question-card.wrong { border-color: rgba(231,76,60,0.3); }
+
+  .q-number {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .q-category {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    background: var(--accent2);
+    border-radius: 4px;
+    color: var(--text-dim);
+    margin-left: 8px;
+  }
+  .q-text {
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+  .q-text .blank {
+    display: inline-block;
+    min-width: 80px;
+    border-bottom: 2px dashed var(--accent);
+    color: var(--gold);
+    font-weight: 600;
+    text-align: center;
+    padding: 0 8px;
+    margin: 0 2px;
+  }
+
+  .input-wrap { position: relative; }
+  .q-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .q-input:focus { border-color: var(--accent); }
+  .q-input:disabled { cursor: not-allowed; opacity: 0.7; }
+  .q-input.correct-input { border-color: var(--correct); color: var(--correct); }
+  .q-input.wrong-input { border-color: var(--wrong); color: var(--wrong); }
+
+  .answer-hint {
+    margin-top: 8px;
+    font-size: 13px;
+    display: none;
+  }
+  .answer-hint.show { display: block; }
+  .answer-hint .correct-ans { color: var(--correct); }
+  .answer-hint .your-ans { color: var(--wrong); }
+
+  .q-result-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    display: none;
+  }
+  .question-card.correct .q-result-icon,
+  .question-card.wrong .q-result-icon { display: block; }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 1px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #c0392b);
+    color: #fff;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(233,69,96,0.4); }
+  .btn-secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--card-hover); }
+  .btn-success {
+    background: linear-gradient(135deg, var(--correct), #27ae60);
+    color: #fff;
+  }
+  .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46,204,113,0.4); }
+
+  /* Result Section */
+  .result-section {
+    text-align: center;
+    padding: 40px 20px;
+    display: none;
+  }
+  .result-section.show { display: block; }
+  .result-score {
+    font-size: 64px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold), #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .result-detail {
+    color: var(--text-dim);
+    margin: 12px 0 24px;
+    font-size: 16px;
+  }
+  .result-emoji {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  /* Toggle answers */
+  .toggle-answers {
+    margin-top: 20px;
+    text-align: left;
+  }
+  .toggle-answers summary {
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 14px;
+    padding: 8px 0;
+  }
+  .answer-list {
+    list-style: none;
+    padding: 12px 0;
+  }
+  .answer-list li {
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .answer-list li:last-child { border-bottom: none; }
+  .ans-num { color: var(--accent); font-weight: 600; min-width: 40px; display: inline-block; }
+  .ans-sep { color: var(--text-dim); margin: 0 8px; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Category filter */
+  .cat-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .cat-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .cat-btn:hover, .cat-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* Timer */
+  .timer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .timer span { color: var(--gold); font-weight: 600; }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .header h1 { font-size: 22px; }
+    .q-text { font-size: 15px; }
+    .btn { padding: 10px 20px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>文学常识每日一练</h1>
+    <div class="subtitle">每天10题 · 积累文学知识</div>
+    <div class="date-badge" id="dateBadge"></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num" id="statTotal">10</div><div class="stat-label">今日题目</div></div>
+    <div class="stat-item"><div class="stat-num" id="statDone">0</div><div class="stat-label">已作答</div></div>
+    <div class="stat-item"><div class="stat-num" id="statCorrect">0</div><div class="stat-label">正确数</div></div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+  <div class="timer" id="timerDisplay">用时：<span id="timerVal">00:00</span></div>
+
+  <div class="cat-filter" id="catFilter"></div>
+
+  <div id="questionsContainer"></div>
+
+  <div class="btn-row" id="btnRow">
+    <button class="btn btn-primary" id="submitBtn" onclick="submitAll()">提交答案</button>
+    <button class="btn btn-secondary" id="resetBtn" onclick="resetQuiz()">重置</button>
+  </div>
+
+  <div class="result-section" id="resultSection">
+    <div class="result-emoji" id="resultEmoji"></div>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-detail" id="resultDetail"></div>
+    <div class="btn-row">
+      <button class="btn btn-success" onclick="resetQuiz()">再来一组</button>
+      <button class="btn btn-secondary" onclick="toggleResultAnswers()">查看答案</button>
+    </div>
+    <div class="toggle-answers" id="resultAnswers" style="display:none"></div>
+  </div>
+
+  <div class="footer">
+    共 138 题 · 先秦 → 秦汉 → 魏晋南北朝 → 唐代 → 宋代 → 元代 → 明代 → 清代
+  </div>
+</div>
+
+<script>
+// ==================== 题库 ====================
+const allQuestions = [
+  // 先秦文学
+  {cat:"先秦", q:"《诗经》是中国第一部诗歌总集，共收录诗歌____篇。", a:"305"},
+  {cat:"先秦", q:"《诗经》按内容分为风、____、颂三部分。", a:"雅"},
+  {cat:"先秦", q:"《诗经》的表现手法主要有赋、比、____三种。", a:"兴"},
+  {cat:"诗经》又被称为《诗三百》，实际存诗____篇。", a:"305"},
+  {cat:"先秦", q:"《诗经》中的国风共包括____国风。", a:"十五/15"},
+  {cat:"先秦", q:"《诗经》开创了我国文学的____主义传统。", a:"现实"},
+  {cat:"先秦", q:"屈原是中国历史上第一位伟大的____诗人。", a:"浪漫主义爱国/浪漫/爱国"},
+  {cat:"先秦", q:"屈原开创了____体诗歌的新形式。", a:"楚辞/骚"},
+  {cat:"先秦", q:"屈原开创了以香草美人为象征的____传统。", a:"比兴"},
+  {cat:"先秦", q:"屈原的代表作《____》是中国古代最长的抒情诗。", a:"离骚"},
+  {cat:"先秦", q:"屈原的作品收录于汉代刘向编辑的《____》一书中。", a:"楚辞"},
+  {cat:"先秦", q:"屈原的《九歌》共包括____篇祭祀神灵的乐歌。", a:"11/十一"},
+  {cat:"先秦", q:"《楚辞》是以____方言创作的诗歌总集。", a:"楚地/楚"},
+  {cat:"先秦", q:"《左传》全称《____》，相传为左丘明所著。", a:"春秋左氏传"},
+  {cat:"先秦", q:"《左传》是我国第一部叙事详细的____体史书。", a:"编年"},
+  {cat:"先秦", q:"《论语》是记录____及其弟子言行的语录体著作。", a:"孔子"},
+  {cat:"先秦", q:"《孟子》的作者是孟子及其弟子，属于____家经典。", a:"儒"},
+  {cat:"先秦", q:"《庄子》的作者是____，属于道家经典。", a:"庄周/庄子"},
+  {cat:"先秦", q:"《诗经》中的《关雎》属于____风。", a:"周南"},
+  {cat:"先秦", q:"屈原的《天问》共提出____个问题。", a:"172"},
+  {cat:"先秦", q:"《诗经》中的颂分为周颂、____颂、商颂。", a:"鲁"},
+  {cat:"先秦", q:"《____》是我国现存最早的一部编年体史书。", a:"春秋"},
+  // 秦汉文学
+  {cat:"秦汉", q:"秦代唯一有作品流传下来的文人是____。", a:"李斯"},
+  {cat:"秦汉", q:"汉赋四大家包括司马相如、扬雄、班固和____。", a:"张衡"},
+  {cat:"秦汉", q:"司马相如的代表作是《子虚赋》和《____赋》。", a:"上林"},
+  {cat:"秦汉", q:"《史记》的作者是西汉史学家____。", a:"司马迁"},
+  {cat:"秦汉", q:"《史记》是中国第一部____体通史。", a:"纪传"},
+  {cat:"秦汉", q:"《史记》全书共____篇。", a:"130/一百三十"},
+  {cat:"秦汉", q:"《史记》记载了从黄帝到____时期的历史。", a:"汉武帝"},
+  {cat:"秦汉", q:"班固的《____》是我国第一部纪传体断代史。", a:"汉书"},
+  {cat:"秦汉", q:"《汉书》记载了____一朝的历史。", a:"西汉"},
+  {cat:"秦汉", q:"《____》是汉代乐府民歌中最杰出的长篇叙事诗。", a:"孔雀东南飞"},
+  {cat:"秦汉", q:"《古诗十九首》最早见于____编写的《文选》。", a:"萧统"},
+  {cat:"秦汉", q:"《淮南子》的作者是淮南王____。", a:"刘安"},
+  // 魏晋南北朝
+  {cat:"魏晋", q:"三曹指的是曹操、曹丕和____。", a:"曹植"},
+  {cat:"魏晋", q:"建安七子中成就最高的是____。", a:"王粲"},
+  {cat:"魏晋", q:"《燕歌行》的作者是____，是现存最早的完整七言诗。", a:"曹丕"},
+  {cat:"魏晋", q:"《出师表》的作者是____。", a:"诸葛亮"},
+  {cat:"魏晋", q:"《典论·论文》的作者是____，是中国第一篇文学批评专论。", a:"曹丕"},
+  {cat:"魏晋", q:"《文赋》的作者是西晋文学家____。", a:"陆机"},
+  {cat:"魏晋", q:"《兰亭集序》的作者是东晋书法家____。", a:"王羲之"},
+  {cat:"魏晋", q:"《桃花源记》的作者是东晋诗人____。", a:"陶渊明"},
+  {cat:"魏晋", q:"陶渊明号____，是中国第一位田园诗人。", a:"五柳先生/五柳"},
+  {cat:"魏晋", q:"《搜神记》的作者是东晋____学家干宝。", a:"史"},
+  {cat:"魏晋", q:"《世说新语》的作者是南朝宋文学家____。", a:"刘义庆"},
+  {cat:"魏晋", q:"《世说新语》主要记载魏晋人物的____言行。", a:"清谈"},
+  // 唐代文学
+  {cat:"唐代", q:"初唐四杰指的是王勃、杨炯、卢照邻和____。", a:"骆宾王"},
+  {cat:"唐代", q:"王勃的代表作是《____序》。", a:"滕王阁"},
+  {cat:"唐代", q:"《登幽州台歌》的作者是____。", a:"陈子昂"},
+  {cat:"唐代", q:"张若虚的《____》被誉为孤篇压全唐。", a:"春江花月夜"},
+  {cat:"唐代", q:"山水田园诗派的代表诗人是王维和____。", a:"孟浩然"},
+  {cat:"唐代", q:"王维被称为____。", a:"诗佛"},
+  {cat:"唐代", q:"边塞诗派的代表诗人是高适和____。", a:"岑参"},
+  {cat:"唐代", q:"____被称为诗仙。", a:"李白"},
+  {cat:"唐代", q:"李白是伟大的____主义诗人。", a:"浪漫"},
+  {cat:"唐代", q:"杜甫被称为____。", a:"诗圣"},
+  {cat:"唐代", q:"杜甫的诗被称为____。", a:"诗史"},
+  {cat:"唐代", q:"李白的代表作有《蜀道难》、《将进酒》、《____》等。", a:"梦游天姥吟留别"},
+  {cat:"唐代", q:"杜甫的代表作有《三吏》、《三别》、《____》等。", a:"春望"},
+  {cat:"唐代", q:"《长恨歌》的作者是____。", a:"白居易"},
+  {cat:"唐代", q:"白居易倡导了____运动。", a:"新乐府"},
+  {cat:"唐代", q:"韩愈倡导了____运动。", a:"古文"},
+  {cat:"唐代", q:"《师说》的作者是____。", a:"韩愈"},
+  {cat:"唐代", q:"柳宗元的《____》描绘了永州的美景。", a:"小石潭记"},
+  {cat:"唐代", q:"小李杜指的是李商隐和____。", a:"杜牧"},
+  {cat:"唐代", q:"李商隐的《____》以无题为名，意境朦胧。", a:"锦瑟"},
+  {cat:"唐代", q:"《阿房宫赋》的作者是____。", a:"杜牧"},
+  {cat:"唐代", q:"被称为诗豪的唐代诗人是____。", a:"刘禹锡"},
+  // 宋代文学
+  {cat:"宋代", q:"唐宋八大家中唐代有两位，分别是韩愈和____。", a:"柳宗元"},
+  {cat:"宋代", q:"唐宋八大家中宋代有六位，分别是欧阳修、苏洵、苏轼、苏辙、王安石和____。", a:"曾巩"},
+  {cat:"宋代", q:"北宋文坛领袖是____。", a:"欧阳修"},
+  {cat:"宋代", q:"欧阳修的代表作是《____》。", a:"醉翁亭记"},
+  {cat:"宋代", q:"《六国论》的作者是____。", a:"苏洵"},
+  {cat:"宋代", q:"被称为千古词帝的是____。", a:"李煜"},
+  {cat:"宋代", q:"《____》是李煜的亡国哀音代表作。", a:"虞美人"},
+  {cat:"宋代", q:"苏轼号____居士。", a:"东坡"},
+  {cat:"宋代", q:"苏轼的《____》描绘了赤壁的壮丽景色。", a:"念奴娇·赤壁怀古"},
+  {cat:"宋代", q:"《水调歌头·明月几时有》的作者是____。", a:"苏轼"},
+  {cat:"宋代", q:"苏门四学士指的是黄庭坚、秦观、晁补之和____。", a:"张耒"},
+  {cat:"宋代", q:"____是北宋婉约派词人代表，著有《乐章集》。", a:"柳永"},
+  {cat:"宋代", q:"《雨霖铃》的作者是北宋词人____。", a:"柳永"},
+  {cat:"宋代", q:"被称为词中之龙的南宋词人是____。", a:"辛弃疾"},
+  {cat:"宋代", q:"辛弃疾与苏轼并称____。", a:"苏辛"},
+  {cat:"宋代", q:"《破阵子·为陈同甫赋壮词以寄之》的作者是____。", a:"辛弃疾"},
+  {cat:"宋代", q:"《声声慢》的作者是女词人____。", a:"李清照"},
+  {cat:"宋代", q:"李清照号____居士。", a:"易安"},
+  {cat:"宋代", q:"《资治通鉴》的作者是北宋____。", a:"司马光"},
+  {cat:"宋代", q:"《资治通鉴》是中国第一部____体通史。", a:"编年"},
+  {cat:"宋代", q:"《岳阳楼记》的作者是北宋____。", a:"范仲淹"},
+  {cat:"宋代", q:"陆游是南宋伟大的____诗人。", a:"爱国"},
+  {cat:"宋代", q:"《示儿》的作者是____。", a:"陆游"},
+  {cat:"宋代", q:"《钗头凤》的作者是____。", a:"陆游"},
+  {cat:"宋代", q:"《窦娥冤》的作者是元代戏曲家____。", a:"关汉卿"},
+  // 元代文学
+  {cat:"元代", q:"元曲四大家包括关汉卿、白朴、郑光祖和____。", a:"马致远"},
+  {cat:"元代", q:"关汉卿的代表作《____》描写了窦娥的冤案。", a:"窦娥冤"},
+  {cat:"元代", q:"《西厢记》的作者是元代戏曲家____。", a:"王实甫"},
+  {cat:"元代", q:"《西厢记》描写的是张生与____的爱情故事。", a:"崔莺莺"},
+  {cat:"元代", q:"《墙头马上》的作者是元曲四大家之一的____。", a:"白朴"},
+  {cat:"元代", q:"《梧桐雨》的作者是____。", a:"白朴"},
+  {cat:"元代", q:"《汉宫秋》的作者是元曲四大家之一的____。", a:"马致远"},
+  {cat:"元代", q:"《天净沙·秋思》的作者是____。", a:"马致远"},
+  {cat:"元代", q:"被称为曲状元的是____。", a:"马致远"},
+  {cat:"元代", q:"《倩女离魂》的作者是元曲四大家之一的____。", a:"郑光祖"},
+  // 明代文学
+  {cat:"明代", q:"《三国演义》的作者是元末明初的____。", a:"罗贯中"},
+  {cat:"明代", q:"《三国演义》是中国第一部长篇章回体____小说。", a:"历史"},
+  {cat:"明代", q:"《水浒传》的作者是元末明初的____。", a:"施耐庵"},
+  {cat:"明代", q:"《西游记》的作者是明代____。", a:"吴承恩"},
+  {cat:"明代", q:"《西游记》中的主人公是____。", a:"孙悟空"},
+  {cat:"明代", q:"明代四大奇书是《三国演义》、《水浒传》、《西游记》和《____》。", a:"金瓶梅"},
+  {cat:"明代", q:"《金瓶梅》是中国第一部文人独立创作的____小说。", a:"长篇白话"},
+  {cat:"明代", q:"汤显祖的代表作《____》描写了杜丽娘与柳梦梅的爱情。", a:"牡丹亭"},
+  {cat:"明代", q:"临川四梦包括《牡丹亭》、《紫钗记》、《邯郸记》和《____》。", a:"南柯记"},
+  {cat:"明代", q:"三言指的是《喻世明言》、《警世通言》和《____》。", a:"醒世恒言"},
+  {cat:"明代", q:"三言的作者是明代文学家____。", a:"冯梦龙"},
+  {cat:"明代", q:"《初刻拍案惊奇》的作者是凌濛初，属于____小说。", a:"拟话本"},
+  {cat:"明代", q:"二拍指的是《初刻拍案惊奇》和《____》。", a:"二刻拍案惊奇"},
+  {cat:"明代", q:"《聊斋志异》的作者是清代____。", a:"蒲松龄"},
+  {cat:"明代", q:"《阅微草堂笔记》的作者是清代____。", a:"纪晓岚/纪昀"},
+  // 清代文学
+  {cat:"清代", q:"《红楼梦》的作者是清代小说家____。", a:"曹雪芹"},
+  {cat:"清代", q:"《红楼梦》原名《____》。", a:"石头记"},
+  {cat:"清代", q:"《红楼梦》全书共____回（通行本）。", a:"120/一百二十"},
+  {cat:"清代", q:"《红楼梦》的四大家族是贾、史、王、____。", a:"薛"},
+  {cat:"清代", q:"《儒林外史》的作者是清代____。", a:"吴敬梓"},
+  {cat:"清代", q:"《聊斋志异》的作者是清代文学家____。", a:"蒲松龄"},
+  {cat:"清代", q:"《长生殿》的作者是清代戏曲家____。", a:"洪昇"},
+  {cat:"清代", q:"《桃花扇》的作者是清代戏曲家____。", a:"孔尚任"},
+  {cat:"清代", q:"《二十年目睹之怪现状》的作者是____。", a:"吴趼人"},
+  {cat:"清代", q:"《老残游记》的作者是____。", a:"刘鹗"},
+  {cat:"清代", q:"晚清四大谴责小说包括《官场现形记》、《二十年目睹之怪现状》、《老残游记》和《____》。", a:"孽海花"},
+  {cat:"清代", q:"《官场现形记》的作者是____。", a:"李宝嘉"},
+  {cat:"清代", q:"《孽海花》的作者是____。", a:"曾朴"},
+  {cat:"清代", q:"桐城派散文的代表人物是方苞、刘大櫆和____。", a:"姚鼐"},
+  {cat:"清代", q:"《登泰山记》的作者是桐城派作家____。", a:"姚鼐"},
+  {cat:"清代", q:"性灵派诗歌的代表人物是袁枚、赵翼和____。", a:"蒋士铨"},
+  {cat:"清代", q:"《黄生借书说》的作者是____。", a:"袁枚"},
+  {cat:"清代", q:"《论诗》的作者是清代诗人____。", a:"赵翼"},
+  {cat:"清代", q:"《纳兰词》的作者是清代词人____。", a:"纳兰性德"},
+  {cat:"清代", q:"《饮水词》的作者是清代词人____。", a:"纳兰性德"},
+];
+
+// ==================== 每日选题 ====================
+function getDailyQuestions() {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+
+  // 日期显示
+  const dateStr = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+  document.getElementById('dateBadge').textContent = dateStr;
+
+  // 伪随机（基于日期）
+  let rng = seed;
+  function rand() {
+    rng = (rng * 9301 + 49297) % 233280;
+    return rng / 233280;
+  }
+
+  // Fisher-Yates shuffle
+  const shuffled = [...allQuestions];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled.slice(0, 10);
+}
+
+// ==================== 全局状态 ====================
+let dailyQuestions = [];
+let answered = [];
+let totalCorrect = 0;
+let startTime = null;
+let timerInterval = null;
+let submitted = false;
+let currentFilter = '全部';
+
+// ==================== 初始化 ====================
+function init() {
+  loadProgress();
+  if (submitted && dailyQuestions.length > 0) {
+    renderQuestions();
+    showResult();
+  } else {
+    startNewQuiz();
+  }
+  renderCatFilter();
+}
+
+function startNewQuiz() {
+  dailyQuestions = getDailyQuestions();
+  answered = new Array(10).fill(null);
+  totalCorrect = 0;
+  submitted = false;
+  startTime = Date.now();
+  saveProgress();
+  renderQuestions();
+  startTimer();
+  document.getElementById('resultSection').classList.remove('show');
+  document.getElementById('btnRow').style.display = 'flex';
+}
+
+function renderCatFilter() {
+  const cats = ['全部', ...new Set(allQuestions.map(q => q.cat))];
+  const container = document.getElementById('catFilter');
+  container.innerHTML = '';
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (cat === currentFilter ? ' active' : '');
+    btn.textContent = cat;
+    btn.onclick = () => {
+      currentFilter = cat;
+      renderCatFilter();
+      renderQuestions();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+
+  const filtered = currentFilter === '全部'
+    ? dailyQuestions.map((q, i) => ({q, i}))
+    : dailyQuestions.map((q, i) => ({q, i})).filter(({q}) => q.cat === currentFilter);
+
+  filtered.forEach(({q, i}) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${i}`;
+
+    const answeredState = answered[i];
+    let inputHtml, hintHtml = '';
+
+    if (submitted) {
+      const isCorrect = checkAnswer(answeredState, q.a);
+      card.classList.add(isCorrect ? 'correct' : 'wrong');
+      inputHtml = `<input class="q-input ${isCorrect ? 'correct-input' : 'wrong-input'}" value="${answeredState || ''}" disabled>`;
+      hintHtml = `<div class="answer-hint show">
+        ${!isCorrect ? `<span class="your-ans">你的答案：${answeredState || '（未作答）'}</span><br>` : ''}
+        <span class="correct-ans">正确答案：${q.a}</span>
+      </div>`;
+    } else {
+      inputHtml = `<input class="q-input" id="input-${i}" value="${answeredState || ''}"
+        placeholder="请输入答案..."
+        oninput="saveAnswer(${i})"
+        onkeydown="if(event.key==='Enter')checkSingle(${i})">`;
+      hintHtml = `<div class="answer-hint" id="hint-${i}"></div>`;
+    }
+
+    card.innerHTML = `
+      <div class="q-result-icon">${answeredState && submitted ? (checkAnswer(answeredState, q.a) ? '✅' : '❌') : ''}</div>
+      <div class="q-number">第 ${i + 1} 题 <span class="q-category">${q.cat}</span></div>
+      <div class="q-text">${q.q.replace('____', '<span class="blank">____</span>')}</div>
+      <div class="input-wrap">
+        ${inputHtml}
+        ${hintHtml}
+      </div>
+      ${!submitted ? `<div style="text-align:right;margin-top:6px"><button class="btn btn-secondary" style="padding:4px 12px;font-size:12px" onclick="checkSingle(${i})">检查本题</button></div>` : ''}
+    `;
+    container.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+// ==================== 答案检查 ====================
+function checkAnswer(userAns, correctAns) {
+  if (!userAns) return false;
+  const user = userAns.trim().toLowerCase();
+  const correctList = correctAns.split('/').map(a => a.trim().toLowerCase());
+  return correctList.includes(user);
+}
+
+function saveAnswer(idx) {
+  answered[idx] = document.getElementById(`input-${idx}`).value;
+  saveProgress();
+  updateProgress();
+}
+
+function checkSingle(idx) {
+  const input = document.getElementById(`input-${idx}`);
+  const hint = document.getElementById(`hint-${idx}`);
+  const val = input.value.trim();
+  if (!val) return;
+
+  const q = dailyQuestions[idx];
+  const isCorrect = checkAnswer(val, q.a);
+  hint.className = 'answer-hint show';
+  hint.innerHTML = isCorrect
+    ? `<span class="correct-ans">✅ 回答正确！</span>`
+    : `<span class="your-ans">❌ 答案不正确，请继续思考～</span><br><span class="correct-ans">正确答案：${q.a}</span>`;
+
+  input.classList.remove('correct-input', 'wrong-input');
+  input.classList.add(isCorrect ? 'correct-input' : 'wrong-input');
+
+  const card = document.getElementById(`card-${idx}`);
+  card.classList.remove('correct', 'wrong');
+  card.classList.add(isCorrect ? 'correct' : 'wrong');
+}
+
+// ==================== 提交 ====================
+function submitAll() {
+  if (answered.every(a => !a)) {
+    alert('你还没有作答任何题目哦！');
+    return;
+  }
+
+  submitted = true;
+  totalCorrect = 0;
+  answered.forEach((ans, i) => {
+    if (checkAnswer(ans, dailyQuestions[i].a)) totalCorrect++;
+  });
+
+  stopTimer();
+  saveProgress();
+  renderQuestions();
+  showResult();
+}
+
+function showResult() {
+  document.getElementById('btnRow').style.display = 'none';
+  const section = document.getElementById('resultSection');
+  section.classList.add('show');
+
+  const score = totalCorrect;
+  document.getElementById('resultScore').textContent = `${score} / 10`;
+
+  let emoji, detail;
+  if (score === 10) { emoji = '🏆'; detail = '满分！文学常识功底扎实！'; }
+  else if (score >= 8) { emoji = '🌟'; detail = '优秀！再接再厉！'; }
+  else if (score >= 6) { emoji = '👍'; detail = '及格，还有提升空间！'; }
+  else if (score >= 4) { emoji = '💪'; detail = '继续加油，多积累！'; }
+  else { emoji = '📚'; detail = '需要更多练习哦！'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultDetail').textContent = detail;
+
+  // 生成答案列表
+  const answersHtml = dailyQuestions.map((q, i) => {
+    const ans = answered[i] || '（未作答）';
+    const ok = checkAnswer(answered[i], q.a);
+    return `<li><span class="ans-num">第${i+1}题</span> <span class="ans-sep">|</span> <span style="color:${ok?'var(--correct)':'var(--wrong)'}">${ok?'✅':'❌'}</span> 你的答案：${ans} <span style="color:var(--text-dim)">| 正确答案：${q.a}</span></li>`;
+  }).join('');
+
+  document.getElementById('resultAnswers').innerHTML = `
+    <details class="toggle-answers">
+      <summary>📋 查看完整答案</summary>
+      <ul class="answer-list">${answersHtml}</ul>
+    </details>`;
+
+  // 滚动到结果
+  section.scrollIntoView({behavior: 'smooth'});
+}
+
+function toggleResultAnswers() {
+  const el = document.getElementById('resultAnswers');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ==================== 进度条 ====================
+function updateProgress() {
+  const done = answered.filter(a => a && a.trim()).length;
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statCorrect').textContent = totalCorrect;
+  document.getElementById('progressBar').style.width = `${done * 10}%`;
+}
+
+// ==================== 计时器 ====================
+function startTimer() {
+  stopTimer();
+  startTime = Date.now();
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    document.getElementById('timerVal').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+// ==================== 本地存储 ====================
+function saveProgress() {
+  const data = {
+    date: new Date().toDateString(),
+    questions: dailyQuestions,
+    answered,
+    totalCorrect,
+    submitted,
+    startTime,
+  };
+  localStorage.setItem('litQuizProgress', JSON.stringify(data));
+}
+
+function loadProgress() {
+  const raw = localStorage.getItem('litQuizProgress');
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    // 只恢复当天的进度
+    if (data.date === new Date().toDateString()) {
+      dailyQuestions = data.questions || [];
+      answered = data.answered || [];
+      totalCorrect = data.totalCorrect || 0;
+      submitted = data.submitted || false;
+      startTime = data.startTime || Date.now();
+    }
+  } catch(e) {}
+}
+
+// ==================== 重置 ====================
+function resetQuiz() {
+  startNewQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ==================== 启动 ====================
+init();
+</script>
+</body>
+</html>
