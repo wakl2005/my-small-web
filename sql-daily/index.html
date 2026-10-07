@@ -70,17 +70,19 @@ var questions = [];
 var reviewedSet = new Set();
 
 function loadData() {
-  var ver = localStorage.getItem("sq_ver");
-  if (ver !== "v2") {
-    localStorage.clear();
-    localStorage.setItem("sq_ver", "v2");
+  var s = localStorage.getItem("sql_questions");
+  if (s) {
+    try { questions = JSON.parse(s); } catch(e) {}
   }
-  questions = [];
-  reviewedSet = new Set();
+  var r = localStorage.getItem("sql_reviewed");
+  if (r) {
+    try { reviewedSet = new Set(JSON.parse(r)); } catch(e) {}
+  }
 }
 
 function saveData() {
-  localStorage.setItem("sq", JSON.stringify(questions));
+  localStorage.setItem("sql_questions", JSON.stringify(questions));
+  localStorage.setItem("sql_reviewed", JSON.stringify(Array.from(reviewedSet)));
 }
 
 function getDaySeed() {
@@ -173,8 +175,8 @@ function clearAll() {
   if(confirm("确定清空所有题目吗？此操作不可恢复！")) {
     questions = [];
     reviewedSet = new Set();
-    localStorage.removeItem("sq");
-    localStorage.removeItem("sqr");
+    localStorage.removeItem("sql_questions");
+    localStorage.removeItem("sql_reviewed");
     render();
     alert("题库已清空");
   }
