@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>按钮测试</title>
+<style>
+  body{font-family:sans-serif;padding:40px;background:#1a1a2e;color:#fff}
+  button{padding:12px 24px;margin:10px;font-size:16px;cursor:pointer;background:#e94560;color:#fff;border:none;border-radius:8px}
+  button:hover{background:#c81e45}
+  #result{margin-top:20px;padding:16px;background:#0f0f23;border-radius:8px;min-height:50px}
+  .show{display:block!important}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<h2>按钮测试页面</h2>
+<button onclick="test1()">测试1: alert</button>
+<button onclick="test2()">测试2: 显示内容</button>
+<button onclick="test3()">测试3: toggle</button>
+<button onclick="clearResult()">清空</button>
+<div id="result" class="hidden"></div>
+
+<script>
+function test1(){
+  alert('按钮能点击！');
+}
+function test2(){
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').innerHTML='<p style="color:#4ade80">✅ JavaScript 正常工作！</p><p>当前时间：'+new Date().toLocaleString()+'</p>';
+}
+function test3(){
+  const el=document.getElementById('result');
+  el.classList.toggle('show');
+  if(el.classList.contains('show')){
+    el.innerHTML='<p style="color:#4ade80">✅ Toggle 成功！</p>';
+  }
+}
+function clearResult(){
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('result').innerHTML='';
+}
+</script>
+</body>
+</html>
